@@ -32,11 +32,16 @@ export const Melipona = {
         if (typeof type === 'string') {
             return createDomElement(type, props, children);
         }
+        if (typeof type === 'function') {
+            return type(props, children);
+        }
+        throw new Error(`Unsupported type: ${typeof type}`);
     },
 
-    render(tree) {
-        const result = tree.render();
-        return result;
-    }
+    render(tree, container) {
+        container.appendChild(tree.render());
+    },
+
+    renderChildren
 };
 

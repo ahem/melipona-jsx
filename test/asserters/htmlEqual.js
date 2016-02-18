@@ -12,7 +12,7 @@ function compare(orig, comp) {
     trimWhitespace(origDOM);
     trimWhitespace(compDOM);
     return compareElements(origDOM, compDOM);
-};
+}
 
 function trimWhitespace(dom) {
     var childNode, i, j, k, len, len1, len2, ref, ref1, results, whitespaceChildren;
@@ -44,14 +44,14 @@ function trimWhitespace(dom) {
         }
         return results;
     }
-};
+}
 
 function trimTextWhitespace(text) {
     text = text.replace(/[\n\r\s\t]/gm, ' ');
     text = text.replace(/[\s][\s]+/g, ' ');
     text = text.replace(/^[\s]+|[\s]+$/g, '');
     return text;
-};
+}
 
 function drawTreeView(parent, node, state, indent) {
     var childNode, classes, i, len, ref;
@@ -92,13 +92,13 @@ function drawTreeView(parent, node, state, indent) {
         }
     }
     return false;
-};
+}
 
 function throwError(parent, node, text) {
     var treeview;
     treeview = drawTreeView(parent, node);
     throw new Error(text + '\n' + treeview);
-};
+}
 
 function compareElements(orig, comp, parent) {
     var attr, compAttrNames, compChildrenNames, compNames, compText, compValue, i, index, j, k, l, len,
@@ -185,11 +185,11 @@ function compareElements(orig, comp, parent) {
             return throwError(parent, orig, 'content differs "' + origText + '" != "' + compText + '"');
         }
     }
-};
+}
 
 module.exports = function (chai, utils) {
     utils.addMethod(chai.Assertion.prototype, 'htmlEqual', function (expected) {
-        const obj = this._obj
+        const obj = this._obj;
         let error = '';
 
         try {
@@ -198,7 +198,7 @@ module.exports = function (chai, utils) {
             error = e.message;
         }
 
-        this.assert(!error,
+        this.assert(obj && !error,
             'expected HTML of #{act} to equal #{exp}: ' + error,
             'expected HTML of #{act} to not equal #{exp}.',
             expected,

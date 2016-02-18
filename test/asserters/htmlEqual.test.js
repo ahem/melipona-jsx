@@ -14,6 +14,9 @@ describe('htmlEqual chai plugin', () => {
         assert.htmlEqual('<div><h1>hest</h1></div>', '<div><H1>   hest </h1> </div>');
         assert.notHtmlEqual('<div><h1>hest</h1></div>', '<!-- hest --><div><H1>   hest </h1> </div>');
     });
+    it('should not accept undefined', () => {
+        assert.notHtmlEqual(undefined, '<div>hest</div>');
+    });
 });
 
 
