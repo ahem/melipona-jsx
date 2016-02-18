@@ -1,40 +1,15 @@
-const chai = require('chai');
-const assert = chai.assert;
+import chai from 'chai';
 chai.use(require('./asserters/htmlEqual'));
 
-const babel = require('babel-core');
-const vm = require('vm');
-const jsdom = require('jsdom');
+const assert = chai.assert;
+
 import { Melipona } from  '../src/index';
-
-
-function getHtml(s, context) {
-    // FIXME: Melipona's dom object thing expects document and window to be globals.
-    global.document = jsdom.jsdom('<!doctype html><html><body></body></html>', {
-        virtualConsole: jsdom.createVirtualConsole().sendTo(console)
-    });
-    global.window = document.defaultView;
-    var sandbox = Object.assign({ Melipona, document: global.document, window: global.window }, context || {});
-
-    const transformed = babel.transform(s, {
-        presets: ['es2015'],
-        plugins: [
-            ['transform-react-jsx', { pragma: 'Melipona.build' }]
-        ]
-    });
-
-    vm.createContext(sandbox);
-
-    const script = new vm.Script(transformed.code);
-    script.runInContext(sandbox);
-
-    return global.document.body.innerHTML;
-}
+import jsxToHTML from './jsx-to-html';
 
 describe('JSX transforms', () => {
     it('plain dom', () => {
         assert.htmlEqual(
-            getHtml(`Melipona.render((
+            jsxToHTML(`Melipona.render((
                 <div>
                     <h1>hey</h1>
                     <p style={{color:'black'}}>isn't this <span className="underline">something?</span></p>
@@ -60,7 +35,7 @@ describe('JSX transforms', () => {
         };
 
         assert.htmlEqual(
-            getHtml('Melipona.render(<LabelComponent text="hey there!!" />, document.body)', { LabelComponent }),
+            jsxToHTML('Melipona.render(<LabelComponent text="hey there!!" />, document.body)', { LabelComponent }),
             `<div class="labelWrapper">
                 <label>hey there!!</label>
             </div>`
@@ -85,7 +60,7 @@ describe('JSX transforms', () => {
             };
         };
         assert.htmlEqual(
-            getHtml(`Melipona.render(
+            jsxToHTML(`Melipona.render(
                     <ListComponent className="list">
                         <div>some item</div>
                         some item that is text
@@ -96,6 +71,37 @@ describe('JSX transforms', () => {
                 <li>some item that is text</li>
                 <li><p>some <span class="italic">other</span> item</p></li>
             </ul>`
+        );
+    });
+
+    it('turn strings returned from render() into html', () => {
+        const Component = () => ({
+            render() { return '<div class="test"><p>test</p></div>'; }
+        });
+        assert.htmlEqual(
+            jsxToHTML('Melipona.render(<Component />, document.body)', { Component }),
+            '<div class="test"><p>test</p></div>'
+        );
+
+        // FIXME: this test acutally passes, but it causes some ugly output from JSDOM (I think) on the console
+        /*
+        const BrokenComponent = () => ({
+            render() { return '<div class="first"></div><div>second</div>'; }
+        });
+        assert.throws(() => jsxToHTML('Melipona.render(<BrokenComponent />, document.body)', { BrokenComponent }));
+        */
+    });
+
+    it('turn JSX tree returned from render() into html', () => {
+        assert.htmlEqual(
+            jsxToHTML(`
+                const Component = () => ({
+                    render() {
+                        return (<div className="test"><p>test</p></div>); }
+                });
+                Melipona.render(<Component />, document.body)`
+            ),
+            '<div class="test"><p>test</p></div>'
         );
     });
 });
