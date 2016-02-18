@@ -1,0 +1,21 @@
+{
+  "name": "melipona-jsx",
+  "version": "1.0.0",
+  "description": "JSX for simple, convention based vanilla JS components.",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --compilers js:babel-register `find ./test -iname *.test.js`"
+  },
+  "author": "Anders Hellerup Madsen <anders@hellerup-madsen.dk>",
+  "license": "ISC",
+  "devDependencies": {
+    "babel": "^6.5.2",
+    "babel-core": "^6.5.2",
+    "babel-plugin-transform-react-jsx": "^6.5.2",
+    "babel-preset-es2015": "^6.5.0",
+    "babel-register": "^6.5.2",
+    "chai": "^3.5.0",
+    "jsdom": "^8.0.3",
+    "mocha": "^2.4.5"
+  }
+}

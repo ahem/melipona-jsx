@@ -1,0 +1,21 @@
+# IntelliJ
+*.iml
+.idea
+
+# OS X
+.DS_Store
+
+# Building
+node_modules
+npm-list.txt
+npm-debug.log
+*.made
+_build
+
+# Tern support
+.tern-port
+
+# Emacs
+TAGS
+.dir-locals.el
+
