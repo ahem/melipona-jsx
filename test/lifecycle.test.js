@@ -18,6 +18,7 @@ describe('lifecycle events', () => {
             return {
                 render() {
                     renderCnt++;
+                    renderCalled = true;
                     assert.isFalse(attachCalled);
                     const el = document.createElement('div');
                     el.className = props.className;
@@ -27,6 +28,7 @@ describe('lifecycle events', () => {
 
                 attach() {
                     attachCnt++;
+                    attachCalled = true;
                     assert.isTrue(renderCalled);
                 }
             };
