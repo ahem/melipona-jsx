@@ -1,12 +1,24 @@
 import chai from 'chai';
 chai.use(require('./asserters/htmlEqual'));
 
+const jsdom = require('jsdom');
 const assert = chai.assert;
 
 import { Melipona } from  '../src/index';
-import jsxToHTML from './jsx-to-html';
+
+function stripIds(html) {
+    return html.replace(/\bdata-melipona-id="[^"]+"/g, '');
+}
 
 describe('lifecycle events', () => {
+
+    beforeEach(() => {
+        global.document = jsdom.jsdom('<!doctype html><html><body></body></html>', {
+            virtualConsole: jsdom.createVirtualConsole().sendTo(console)
+        });
+        global.window = document.defaultView;
+    });
+
     it('should render all, then attach all', () => {
 
         let renderCnt = 0;
@@ -34,14 +46,15 @@ describe('lifecycle events', () => {
             };
         };
 
-        assert.htmlEqual(
-            jsxToHTML(`Melipona.render(
-                <Component className="a">
-                    <Component className="b">
-                        <Component className="c" />
-                    </Component>
-                    <Component className="d" />
-                </Component>, document.body)`, { Component }),
+        Melipona.render(
+            <Component className="a">
+                <Component className="b">
+                    <Component className="c" />
+                </Component>
+                <Component className="d" />
+            </Component>, document.body);
+
+        assert.htmlEqual(stripIds(document.body.innerHTML),
             `<div class="a">
                 <div class="b">
                     <div class="c"></div>

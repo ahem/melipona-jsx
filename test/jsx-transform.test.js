@@ -104,6 +104,28 @@ describe('JSX transforms', () => {
             '<div class="test"><p>test</p></div>'
         );
     });
+
+    it('add data-melipona-id attributes', () => {
+        assert.htmlEqual(
+            jsxToHTML(` Melipona.render(<div className="a">
+                <div className="b">
+                    <div className="c"></div>
+                    <div className="d"></div>
+                    <div className="e"></div>
+                </div>
+                <div className="e"></div>
+            </div>, document.body)`, {}, true),
+            `<div class="a" data-melipona-id="0">
+                <div class="b" data-melipona-id="0.0">
+                    <div class="c" data-melipona-id="0.0.0"></div>
+                    <div class="d" data-melipona-id="0.0.1"></div>
+                    <div class="d" data-melipona-id="0.0.2"></div>
+                </div>
+                <div class="e" data-melipona-id="0"></div>
+            </div>`
+        );
+    });
+
 });
 
 

@@ -70,18 +70,38 @@ function *walk(root) {
     }
 }
 
-function attach(tree) {
+function attach(tree, idString = '') {
+    let id = 0;
     for (const component of walk(tree)) {
+        if (!component.__mp.id) {
+            component.__mp.id = idString + (id++);
+        }
+        component.__mp.node.setAttribute('data-melipona-id', component.__mp.id);
+
         if (component.attach && typeof component.attach === 'function') {
-            component.attach(component.__mp.node);
+            component.attach(component.__mp.node, `${component.__mp.id}.`);
         }
     }
 }
 
+function find(tree, delegate) {
+    if (typeof delegate === 'string') {
+        const s = delegate;
+        delegate = c => c.__mp.ref === s;
+    }
+    for (const component of walk(tree)) {
+        if (delegate(component)) {
+            return component;
+        }
+    }
+    return null;
+}
+
 export const Melipona = {
     build(type, props, ...children) {
-        let component;
         const t = typeof type;
+
+        let component;
         switch (t) {
         case 'string':
             component = createDomElement(type, props, children);
@@ -94,6 +114,7 @@ export const Melipona = {
         }
         component.__mp = {
             children,
+            ref: props && props.ref,
             node: null
         };
         return component;
@@ -103,8 +124,10 @@ export const Melipona = {
         const result = renderComponent(tree);
         container.appendChild(result);
         attach(tree);
+        return tree;
     },
 
-    renderChildren
+    renderChildren,
+    find
 };
 
