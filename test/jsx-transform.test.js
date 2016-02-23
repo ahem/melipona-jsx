@@ -7,6 +7,11 @@ import { Melipona } from  '../src/index';
 import jsxToHTML from './jsx-to-html';
 
 describe('JSX transforms', () => {
+
+    beforeEach(() => {
+        Melipona._componentIdCounter = 0;
+    });
+
     it('plain dom', () => {
         assert.htmlEqual(
             jsxToHTML(`Melipona.render((
@@ -113,15 +118,15 @@ describe('JSX transforms', () => {
                     <div className="d"></div>
                     <div className="e"></div>
                 </div>
-                <div className="e"></div>
+                <div className="f"></div>
             </div>, document.body)`, {}, true),
             `<div class="a" data-melipona-id="0">
                 <div class="b" data-melipona-id="0.0">
                     <div class="c" data-melipona-id="0.0.0"></div>
                     <div class="d" data-melipona-id="0.0.1"></div>
-                    <div class="d" data-melipona-id="0.0.2"></div>
+                    <div class="e" data-melipona-id="0.0.2"></div>
                 </div>
-                <div class="e" data-melipona-id="0"></div>
+                <div class="f" data-melipona-id="0.1"></div>
             </div>`
         );
     });

@@ -70,20 +70,6 @@ function *walk(root) {
     }
 }
 
-function attach(tree, idString = '') {
-    let id = 0;
-    for (const component of walk(tree)) {
-        if (!component.__mp.id) {
-            component.__mp.id = idString + (id++);
-        }
-        component.__mp.node.setAttribute('data-melipona-id', component.__mp.id);
-
-        if (component.attach && typeof component.attach === 'function') {
-            component.attach(component.__mp.node, `${component.__mp.id}.`);
-        }
-    }
-}
-
 function find(tree, delegate) {
     if (typeof delegate === 'string') {
         const s = delegate;
@@ -95,6 +81,35 @@ function find(tree, delegate) {
         }
     }
     return null;
+}
+
+function appendChild(parentComponent, childComponent, insertBefore) {
+    if (insertBefore) {
+        const idx = parentComponent.__mp.children.indexOf(insertBefore);
+        parentComponent.__mp.children.splice(idx, 0, childComponent);
+    } else {
+        parentComponent.__mp.children.push(childComponent);
+    }
+
+    if (parentComponent.__mp.node) {
+        const childNode = childComponent.__mp.node || renderComponent(childComponent);
+        parentComponent.__mp.node.insertBefore(childNode, insertBefore ? insertBefore.__mp.node : null);
+        if (childComponent.attach) {
+            childComponent.attach(childComponent.__mp.node);
+        }
+    }
+}
+
+function removeChild(parentComponent, childComponent) {
+    const idx = parentComponent.__mp.children.indexOf(childComponent);
+    if (idx >= 0 && parentComponent.__mp.node) {
+        if (childComponent.dettach) {
+            childComponent.dettach(childComponent.__mp.node);
+        }
+        parentComponent.__mp.node.removeChild(childComponent.__mp.node);
+        childComponent.node = null;
+        parentComponent.__mp.children.splice(idx, 1);
+    }
 }
 
 export const Melipona = {
@@ -122,12 +137,37 @@ export const Melipona = {
 
     render(tree, container) {
         const result = renderComponent(tree);
+
+        function walk(root, cb, id = '0') {
+            cb(root, id);
+            if (root.__mp.children) {
+                let idx = 0;
+                for (const child of root.__mp.children) {
+                    // exclude text nodes
+                    if (typeof child !== 'string') {
+                        walk(child, cb, `${id}.${idx++}`);
+                    }
+                }
+            }
+        }
+
+        Melipona._componentIdCounter = Melipona._componentIdCounter || 0;
+
+        walk(tree, (component, id) => {
+            component.__mp.id = id;
+            component.__mp.node.setAttribute('data-melipona-id', id);
+            if (component.attach && typeof component.attach === 'function') {
+                component.attach(component.__mp.node);
+            }
+        }, Melipona._componentIdCounter++);
+
         container.appendChild(result);
-        attach(tree);
         return tree;
     },
 
+    find,
+    removeChild,
     renderChildren,
-    find
+    appendChild
 };
 
